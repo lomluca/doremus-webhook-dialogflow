@@ -166,9 +166,8 @@ server.post('/answers', (request, response) => {
 
           // GOOGLE CARD
           workCard = new Card({
-            title: title,
-            imageUrl: wikipediaCelsiusImageUrl,
-            text: artst,
+            title: title,,
+            text: artist,
           });
           console.log(workCard);
         });
