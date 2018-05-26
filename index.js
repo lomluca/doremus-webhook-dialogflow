@@ -177,7 +177,11 @@ server.post('/answers', (request, response) => {
         return response.json({
           speech: "This is the list",
           displayText: "This is the list:",
-          data: workCard
+          messages: {
+            "type": 1,
+            "title": "card title",
+            "subtitle": "card text"
+          }
         })
       }
     });
