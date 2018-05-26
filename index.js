@@ -221,13 +221,13 @@ server.post('/answers', (request, response) => {
       }
 
       // ARTIST PARSING
-      if (parameters.doremus - artist == "" && parameters.doremus - artist - prev !== "") {
-        parameters.doremus - artist = parameters.doremus - artist - prev;
+      if (parameters["doremus-artist"] == "" && parameters["doremus-artist-prev"] !== "") {
+        parameters["doremus-artist"] = parameters["doremus-artist-prev"];
       }
 
       // DO THE QUERY (WITH ALL THE INFOS)
-      doWorksByQuery(parameters.doremus - artist, parameters.number, parameters.doremus - instrument,
-        parameters.doremus - strictly, startyear, endyear, parameters.doremus - genre);
+      doWorksByQuery(parameters["doremus-artist"], parameters.number, parameters["doremus-instrument"],
+        parameters["doremus-strictly"], startyear, endyear, parameters["doremus-genre"]);
     }
   }
 
