@@ -167,16 +167,17 @@ server.post('/answers', (request, response) => {
   }
 
   function showWorks() {
+    var params = request.body.result.parameters
 
     // GET PARAMETERS
     var parameters = {
-      artist: agent.parameters["doremus-artist"],
-      prevArtist: agent.parameters["doremus-artist-prev"],
-      number: agent.parameters["number"],
-      instruments: agent.parameters["doremus-instrument"],
-      strictly: agent.parameters["doremus-strictly"],
-      year: agent.parameters["date-period"],
-      genre: agent.parameters["doremus-genre"]
+      artist: params.parameters["doremus-artist"],
+      prevArtist: params.parameters["doremus-artist-prev"],
+      number: params.parameters["number"],
+      instruments: params.parameters["doremus-instrument"],
+      strictly: params.parameters["doremus-strictly"],
+      year: params.parameters["date-period"],
+      genre: params.parameters["doremus-genre"]
     }
 
     // COUNT OF THE FILTER SET BY THE USER
@@ -218,12 +219,12 @@ server.post('/answers', (request, response) => {
 
       // DO THE QUERY (WITH ALL THE INFOS)
       doWorksByQuery(parameters.artist, parameters.number, parameters.instruments,
-        parameters.strictly, startyear, endyear, parameters.genre, agent);
+        parameters.strictly, startyear, endyear, parameters.genre);
     }
   }
 
   // Run the proper function handler based on the matched Dialogflow intent name
-  var intent = request.body.metadata.intentName;
+  var intent = request.body.result.metadata.intentName;
   if (intent === "works-by") {
     showWorks()
   }
