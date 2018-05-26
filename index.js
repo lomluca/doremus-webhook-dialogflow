@@ -174,7 +174,7 @@ server.post('/answers', (request, response) => {
           console.log(workCard);
         });
 
-        res.set('Content-Type', 'application/json');
+        response.set('Content-Type', 'application/json');
         return response.json({
           speech: "This is the list",
           displayText: "This is the list:",
