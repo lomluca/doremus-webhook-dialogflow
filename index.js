@@ -175,10 +175,14 @@ server.post('/answers', (request, response) => {
         });
 
         return response.json({
-          speech: "This is the list",
-          displayText: "This is the list:",
+          //speech: "This is the list",
+          //displayText: "This is the list:",
           messages: {
+            "displayText": "Text response",
+            "textToSpeech": "Audio response",
             "type": 1,
+            "platform": "google",
+            "type": "simple_response",
             "title": "card title",
             "subtitle": "card text"
           }
