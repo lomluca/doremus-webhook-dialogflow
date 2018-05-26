@@ -8,26 +8,26 @@ const server = require('express')();
 const request = require('request');
 
 server.use(bodyParser.urlencoded({
-    extended: true
+  extended: true
 }));
 
 server.use(bodyParser.json());
 
 server.post('/answers', (request, response) => {
-     
-     console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
-     console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
 
-     function doWorksByQuery(artist, number, instrument, strictly, yearstart, yearend, genre, platform, agent) {
-          // DEFAULT NUMBER VALUE (IN CASE IS NOT GIVEN)
-          var num = 5;
-          if (!isNaN(parseInt(number))) {
-               num = parseInt(number);
-          }
+  console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
+  console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
 
-          // JSON QUERY  
-          // -> Init query
-          var newQuery = 'SELECT SAMPLE(?title) AS ?title, SAMPLE(?artist) AS ?artist, \
+  function doWorksByQuery(artist, number, instrument, strictly, yearstart, yearend, genre, platform) {
+    // DEFAULT NUMBER VALUE (IN CASE IS NOT GIVEN)
+    var num = 5;
+    if (!isNaN(parseInt(number))) {
+      num = parseInt(number);
+    }
+
+    // JSON QUERY  
+    // -> Init query
+    var newQuery = 'SELECT SAMPLE(?title) AS ?title, SAMPLE(?artist) AS ?artist, \
                   SAMPLE(?year) AS ?year, SAMPLE(?genre) AS ?genre, \
                   SAMPLE(?comment) AS ?comment, SAMPLE(?key) AS ?key \
                    WHERE { \
@@ -48,40 +48,40 @@ server.post('/answers', (request, response) => {
                        ?k skos:prefLabel ?key \
                      } . '
 
-          console.log(genre);
-          if (genre !== "") {
-               newQuery += 'VALUES(?gen) { \
+    console.log(genre);
+    if (genre !== "") {
+      newQuery += 'VALUES(?gen) { \
                    (<http://data.doremus.org/vocabulary/iaml/genre/' + genre + '>) \
                  }';
-          }
+    }
 
-          if (artist !== "") {
-               newQuery += 'VALUES(?composer) { \
+    if (artist !== "") {
+      newQuery += 'VALUES(?composer) { \
                    (<http://data.doremus.org/artist/' + artist + '>) \
                  }';
-          }
+    }
 
-          // -> Start year present
-          if (yearstart != null && yearend != null) {
-               newQuery += 'FILTER ( ?comp >= "' + yearstart + '"^^xsd:gYear AND ?comp <= "' + yearend + '"^^xsd:gYear ) .'
-          } else if (yearstart != null && yearend == null) {
-               newQuery += 'FILTER ( ?comp >= "' + yearstart + '"^^xsd:gYear ) .'
-          } else if (yearstart == null && yearend != null) {
-               newQuery += 'FILTER ( ?comp <= "' + yearend + '"^^xsd:gYear ) .'
-          }
+    // -> Start year present
+    if (yearstart != null && yearend != null) {
+      newQuery += 'FILTER ( ?comp >= "' + yearstart + '"^^xsd:gYear AND ?comp <= "' + yearend + '"^^xsd:gYear ) .'
+    } else if (yearstart != null && yearend == null) {
+      newQuery += 'FILTER ( ?comp >= "' + yearstart + '"^^xsd:gYear ) .'
+    } else if (yearstart == null && yearend != null) {
+      newQuery += 'FILTER ( ?comp <= "' + yearend + '"^^xsd:gYear ) .'
+    }
 
-          // -> No instrument
-          if (instrument.length == 0) {
+    // -> No instrument
+    if (instrument.length == 0) {
 
-               newQuery += '} \
+      newQuery += '} \
                  GROUP BY ?expression \
                  ORDER BY rand() \
                  LIMIT ' + num
-          }
-          // -> Just one instrument
-          else if (instrument.length == 1) {
+    }
+    // -> Just one instrument
+    else if (instrument.length == 1) {
 
-               newQuery += '?casting mus:U23_has_casting_detail ?castingDetail . \
+      newQuery += '?casting mus:U23_has_casting_detail ?castingDetail . \
                  ?castingDetail mus:U2_foresees_use_of_medium_of_performance / skos:exactMatch* ?instrument . \
                  VALUES(?instrument) { \
                    (<http://data.doremus.org/vocabulary/iaml/mop/' + instrument + '>) \
@@ -90,142 +90,145 @@ server.post('/answers', (request, response) => {
                GROUP BY ?expression \
                ORDER BY rand() \
                LIMIT ' + num
-          }
-          // -> List of instruments
-          else {
+    }
+    // -> List of instruments
+    else {
 
-               // AND case
-               if (strictly === "and") {
-                    for (var i = 0; i < instrument.length; i++) {
-                         newQuery += '?casting mus:U23_has_casting_detail ?castingDetail' + i + ' . \
+      // AND case
+      if (strictly === "and") {
+        for (var i = 0; i < instrument.length; i++) {
+          newQuery += '?casting mus:U23_has_casting_detail ?castingDetail' + i + ' . \
                      ?castingDetail' + i + ' mus:U2_foresees_use_of_medium_of_performance / skos:exactMatch* ?instrument' + i + ' . \
                      VALUES(?instrument' + i + ') { \
                        (<http://data.doremus.org/vocabulary/iaml/mop/' + instrument[i] + '>) \
                      }'
-                    }
+        }
 
-                    newQuery += '} \
+        newQuery += '} \
                    GROUP BY ?expression \
                    ORDER BY rand() \
                    LIMIT ' + num
-               }
-               // OR case
-               else {
-                    newQuery += '?casting mus:U23_has_casting_detail ?castingDetail . \
+      }
+      // OR case
+      else {
+        newQuery += '?casting mus:U23_has_casting_detail ?castingDetail . \
                    ?castingDetail mus:U2_foresees_use_of_medium_of_performance / skos:exactMatch* ?instrument . \
                    VALUES(?instrument) {'
 
-                    for (var i = 0; i < instrument.length; i++) {
-                         newQuery += '(<http://data.doremus.org/vocabulary/iaml/mop/' + instrument[i] + '>)'
-                    }
+        for (var i = 0; i < instrument.length; i++) {
+          newQuery += '(<http://data.doremus.org/vocabulary/iaml/mop/' + instrument[i] + '>)'
+        }
 
-                    newQuery += '} \
+        newQuery += '} \
                  } \
                  GROUP BY ?expression \
                  ORDER BY rand() \
                  LIMIT ' + num
-               }
-          }
+      }
+    }
 
-          // -> Finalize the query
-          var queryPrefix = 'http://data.doremus.org/sparql?default-graph-uri=&query=';
-          var querySuffix = '&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on';
-          var finalQuery = queryPrefix + encodeURI(newQuery) + querySuffix;
+    // -> Finalize the query
+    var queryPrefix = 'http://data.doremus.org/sparql?default-graph-uri=&query=';
+    var querySuffix = '&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on';
+    var finalQuery = queryPrefix + encodeURI(newQuery) + querySuffix;
 
-          // -> Do the HTTP request
-          const request = require('request');
-          request(finalQuery, (err, res, body) => {
+    // -> Do the HTTP request
+    const request = require('request');
+    request(finalQuery, (err, res, body) => {
 
-               if (err) {
-                    return console.log(err);
-               }
+      if (err) {
+        return console.log(err);
+      }
 
-               // JSON PARSING
-               var json = JSON.parse(body)
+      // JSON PARSING
+      var json = JSON.parse(body)
 
-               // RESPONSE
-               if (json["results"]["bindings"].length === 0) {
+      // RESPONSE
+      if (json["results"]["bindings"].length === 0) {
 
-                    agent.add("Sorry... I didn't find anything!");
+        agent.add("Sorry... I didn't find anything!");
 
-               } else {
+      } else {
 
-                    var resp = "This is the list:\n";
-                    json["results"]["bindings"].forEach(function(row) {
+        var resp = "This is the list:\n";
+        json["results"]["bindings"].forEach(function(row) {
 
-                         var artist = row["artist"]["value"];
-                         var title = row["title"]["value"];
-                         var year = row["key"] !== undefined ? row["year"]["value"] : '-';
-                         var genre = row["genre"]["value"];
-                         var comment = row["comment"]["value"];
-                         var key = row["key"] !== undefined ? row["key"]["value"] : '-';
+          var artist = row["artist"]["value"];
+          var title = row["title"]["value"];
+          var year = row["key"] !== undefined ? row["year"]["value"] : '-';
+          var genre = row["genre"]["value"];
+          var comment = row["comment"]["value"];
+          var key = row["key"] !== undefined ? row["key"]["value"] : '-';
 
-                         // GOOGLE CARD
-                    });
-               }
-          });
-     }
+          // GOOGLE CARD
+        });
+      }
+    });
+  }
 
-     function showWorks(agent) {
+  function showWorks() {
 
-          // GET PARAMETERS
-          var parameters = {
-               artist: agent.parameters["doremus-artist"],
-               prevArtist: agent.parameters["doremus-artist-prev"],
-               number: agent.parameters["number"],
-               instruments: agent.parameters["doremus-instrument"],
-               strictly: agent.parameters["doremus-strictly"],
-               year: agent.parameters["date-period"],
-               genre: agent.parameters["doremus-genre"]
-          }
+    // GET PARAMETERS
+    var parameters = {
+      artist: agent.parameters["doremus-artist"],
+      prevArtist: agent.parameters["doremus-artist-prev"],
+      number: agent.parameters["number"],
+      instruments: agent.parameters["doremus-instrument"],
+      strictly: agent.parameters["doremus-strictly"],
+      year: agent.parameters["date-period"],
+      genre: agent.parameters["doremus-genre"]
+    }
 
-          // COUNT OF THE FILTER SET BY THE USER
-          var filterCounter = 0;
-          for (var key in parameters) {
-               if (typeof parameters[key] === "string" && parameters[key] !== "") {
-                    filterCounter++;
-               } else if (typeof parameters[key] !== "string" && parameters[key].length != 0) {
-                    filterCounter++;
-               }
-          }
+    // COUNT OF THE FILTER SET BY THE USER
+    var filterCounter = 0;
+    for (var key in parameters) {
+      if (typeof parameters[key] === "string" && parameters[key] !== "") {
+        filterCounter++;
+      } else if (typeof parameters[key] !== "string" && parameters[key].length != 0) {
+        filterCounter++;
+      }
+    }
 
-          if (filterCounter < 2) {
-               agent.add("Uhm...you told me few filters. Do you want to add something?");
-          } else {
-               // YEAR CHECK AND PARSING
-               var startyear = null;
-               var endyear = null;
+    if (filterCounter < 2) {
+      return res.json({
+        speech: "Uhm...you told me few filters. Do you want to add something?",
+        displayText: "Uhm...you told me few filters. Do you want to add something?"
+      })
+    } else {
+      // YEAR CHECK AND PARSING
+      var startyear = null;
+      var endyear = null;
 
-               if (parameters.year !== "") {
-                    startyear = parseInt(parameters.year.split("/")[0]);
-                    endyear = parseInt(parameters.year.split("/")[1]);
+      if (parameters.year !== "") {
+        startyear = parseInt(parameters.year.split("/")[0]);
+        endyear = parseInt(parameters.year.split("/")[1]);
 
-                    // SWAP IF PROVIDED IN THE INVERSE ORDER
-                    if (startyear > endyear) {
-                         var tmp = startyear;
-                         startyear = endyear;
-                         endyear = tmp;
-                    }
-               }
+        // SWAP IF PROVIDED IN THE INVERSE ORDER
+        if (startyear > endyear) {
+          var tmp = startyear;
+          startyear = endyear;
+          endyear = tmp;
+        }
+      }
 
-               // ARTIST PARSING
-               if (parameters.artist == "" && parameters.prevArtist !== "") {
-                    parameters.artist = parameters.prevArtist;
-               }
+      // ARTIST PARSING
+      if (parameters.artist == "" && parameters.prevArtist !== "") {
+        parameters.artist = parameters.prevArtist;
+      }
 
-               // DO THE QUERY (WITH ALL THE INFOS)
-               doWorksByQuery(parameters.artist, parameters.number, parameters.instruments,
-                    parameters.strictly, startyear, endyear, parameters.genre, agent);
-          }
-     }
+      // DO THE QUERY (WITH ALL THE INFOS)
+      doWorksByQuery(parameters.artist, parameters.number, parameters.instruments,
+        parameters.strictly, startyear, endyear, parameters.genre, agent);
+    }
+  }
 
-     // Run the proper function handler based on the matched Dialogflow intent name
-     let intentMap = new Map();
-     intentMap.set('works-by', showWorks);
-     // intentMap.set('your intent name here', googleAssistantHandler);
-     agent.handleRequest(intentMap);
+  // Run the proper function handler based on the matched Dialogflow intent name
+  var intent = request.body.metadata.intentName;
+  if (intent === "works-by") {
+    showWorks()
+  }
 });
 
 server.listen((process.env.PORT || 8000), () => {
-    console.log("Server is up and running...");
+  console.log("Server is up and running...");
 });
