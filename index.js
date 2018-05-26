@@ -6,6 +6,7 @@
 const bodyParser = require('body-parser');
 const server = require('express')();
 const request = require('request');
+const Card = require('dialogflow-fulfillment').Card;
 
 server.use(bodyParser.urlencoded({
   extended: true
@@ -164,27 +165,26 @@ server.post('/answers', (request, response) => {
           var key = row["key"] !== undefined ? row["key"]["value"] : '-';
 
           // GOOGLE CARD
+          workCard = new Card({
+            title: title,
+            imageUrl: wikipediaCelsiusImageUrl,
+            text: artst,
+          });
+          console.log(workCard);
         });
+
+        return response.json({
+          speech: "This is the list",
+          displayText: "This is the list:"
+        })
       }
     });
   }
 
   function showWorks() {
-    var parameters = request.body.result.parameters
-
-    console.log("The artist is:" + parameters["doremus-artist"])
 
     // GET PARAMETERS
-    /*
-    var parameters = {
-      artist: params["doremus-artist"],
-      prevArtist: params["doremus-artist-prev"],
-      number: params.parameters["number"],
-      instruments: params.parameters["doremus-instrument"],
-      strictly: params.parameters["doremus-strictly"],
-      year: params.parameters["date-period"],
-      genre: params.parameters["doremus-genre"]
-    }*/
+    var parameters = request.body.result.parameters
 
     // COUNT OF THE FILTER SET BY THE USER
     var filterCounter = 0;
@@ -208,9 +208,9 @@ server.post('/answers', (request, response) => {
       var startyear = null;
       var endyear = null;
 
-      if (parameters.year !== "") {
-        startyear = parseInt(parameters.year.split("/")[0]);
-        endyear = parseInt(parameters.year.split("/")[1]);
+      if (parameters.date - period !== "") {
+        startyear = parseInt(parameters.date - period.split("/")[0]);
+        endyear = parseInt(parameters.date - period.split("/")[1]);
 
         // SWAP IF PROVIDED IN THE INVERSE ORDER
         if (startyear > endyear) {
@@ -221,13 +221,13 @@ server.post('/answers', (request, response) => {
       }
 
       // ARTIST PARSING
-      if (parameters.artist == "" && parameters.prevArtist !== "") {
-        parameters.artist = parameters.prevArtist;
+      if (parameters.doremus - artist == "" && parameters.doremus - artist - prev !== "") {
+        parameters.doremus - artist = parameters.doremus - artist - prev;
       }
 
       // DO THE QUERY (WITH ALL THE INFOS)
-      doWorksByQuery(parameters.artist, parameters.number, parameters.instruments,
-        parameters.strictly, startyear, endyear, parameters.genre);
+      doWorksByQuery(parameters.doremus - artist, parameters.number, parameters.doremus - instrument,
+        parameters.doremus - strictly, startyear, endyear, parameters.doremus - genre);
     }
   }
 
