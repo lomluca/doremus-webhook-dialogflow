@@ -169,6 +169,8 @@ server.post('/answers', (request, response) => {
   function showWorks() {
     var params = request.body.result.parameters
 
+    console.log("The parameters are:" + params)
+
     // GET PARAMETERS
     var parameters = {
       artist: params.parameters["doremus-artist"],
