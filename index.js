@@ -208,9 +208,9 @@ server.post('/answers', (request, response) => {
       var startyear = null;
       var endyear = null;
 
-      if (parameters.date - period !== "") {
-        startyear = parseInt(parameters.date - period.split("/")[0]);
-        endyear = parseInt(parameters.date - period.split("/")[1]);
+      if (parameters["date-period"] !== "") {
+        startyear = parseInt(parameters["date-period"].split("/")[0]);
+        endyear = parseInt(parameters["date-period"].split("/")[1]);
 
         // SWAP IF PROVIDED IN THE INVERSE ORDER
         if (startyear > endyear) {
