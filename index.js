@@ -193,6 +193,8 @@ server.post('/answers', (request, response) => {
       }
     }
 
+    console.log("The number of filters is:" + filterCounter)
+
     if (filterCounter < 2) {
       return res.json({
         speech: "Uhm...you told me few filters. Do you want to add something?",
