@@ -197,7 +197,7 @@ server.post('/answers', (request, response) => {
       parameters = request.body.result.contexts[0].parameters
     }
 
-    if (filterCounter <= 2 && askForAdditionalFilters == false) {
+    if (filterCounter <= 2 && askForAdditionalFilters == true) {
       return response.json({
         speech: "Uhm...you told me few filters. Do you want to add something?",
         displayText: "Uhm...you told me few filters. Do you want to add something?"
