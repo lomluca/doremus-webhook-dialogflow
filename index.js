@@ -178,24 +178,26 @@ server.post('/answers', (request, response) => {
     });
   }
 
-  function showWorks() {
+  function showWorks(askForAdditionalFilters) {
 
-    // GET PARAMETERS
-    var parameters = request.body.result.parameters
-
-    // COUNT OF THE FILTER SET BY THE USER
+    var parameters;
     var filterCounter = 0;
-    for (var key in parameters) {
-      if (typeof parameters[key] === "string" && parameters[key] !== "") {
-        filterCounter++;
-      } else if (typeof parameters[key] !== "string" && parameters[key].length != 0) {
-        filterCounter++;
+    // GET PARAMETERS
+    if (askForAdditionalFilters) {
+      parameters = request.body.result.parameters
+      // COUNT OF THE FILTER SET BY THE USER
+      for (var key in parameters) {
+        if (typeof parameters[key] === "string" && parameters[key] !== "") {
+          filterCounter++;
+        } else if (typeof parameters[key] !== "string" && parameters[key].length != 0) {
+          filterCounter++;
+        }
       }
+    } else {
+      parameters = request.body.result.contexts[0].parameters
     }
 
-    console.log("The number of filters is:" + filterCounter)
-
-    if (filterCounter <= 2) {
+    if (filterCounter <= 2 && askForAdditionalFilters == false) {
       return response.json({
         speech: "Uhm...you told me few filters. Do you want to add something?",
         displayText: "Uhm...you told me few filters. Do you want to add something?"
@@ -231,7 +233,9 @@ server.post('/answers', (request, response) => {
   // Run the proper function handler based on the matched Dialogflow intent name
   var intent = request.body.result.metadata.intentName;
   if (intent === "works-by") {
-    showWorks()
+    showWorks(true)
+  } else if (intent == "works-by - no") {
+    showWorks(false)
   }
 });
 
