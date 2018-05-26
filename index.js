@@ -167,20 +167,21 @@ server.post('/answers', (request, response) => {
   }
 
   function showWorks() {
-    var params = request.body.result.parameters
+    var parameters = request.body.result.parameters
 
-    console.log("The parameters are:" + params)
+    console.log("The artist is:" + parameters["doremus-artist"])
 
     // GET PARAMETERS
+    /*
     var parameters = {
-      artist: params.parameters["doremus-artist"],
-      prevArtist: params.parameters["doremus-artist-prev"],
+      artist: params["doremus-artist"],
+      prevArtist: params["doremus-artist-prev"],
       number: params.parameters["number"],
       instruments: params.parameters["doremus-instrument"],
       strictly: params.parameters["doremus-strictly"],
       year: params.parameters["date-period"],
       genre: params.parameters["doremus-genre"]
-    }
+    }*/
 
     // COUNT OF THE FILTER SET BY THE USER
     var filterCounter = 0;
