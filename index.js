@@ -146,7 +146,10 @@ server.post('/answers', (request, response) => {
       // RESPONSE
       if (json["results"]["bindings"].length === 0) {
 
-        agent.add("Sorry... I didn't find anything!");
+        return response.json({
+          speech: "Sorry... I didn't find anything!",
+          displayText: "Sorry... I didn't find anything!"
+        })
 
       } else {
 
