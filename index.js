@@ -165,7 +165,7 @@ server.post('/answers', (request, response) => {
           var key = row["key"] !== undefined ? row["key"]["value"] : '-';
 
           // GOOGLE CARD
-          workCard = new Card({
+          var workCard = new Card({
             title: title,
             text: artist,
           });
