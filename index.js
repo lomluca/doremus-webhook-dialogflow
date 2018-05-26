@@ -154,6 +154,8 @@ server.post('/answers', (request, response) => {
 
       } else {
 
+        var workCard;
+
         var resp = "This is the list:\n";
         json["results"]["bindings"].forEach(function(row) {
 
@@ -165,7 +167,7 @@ server.post('/answers', (request, response) => {
           var key = row["key"] !== undefined ? row["key"]["value"] : '-';
 
           // GOOGLE CARD
-          var workCard = new Card({
+          workCard = new Card({
             title: title,
             text: artist,
           });
@@ -174,7 +176,8 @@ server.post('/answers', (request, response) => {
 
         return response.json({
           speech: "This is the list",
-          displayText: "This is the list:"
+          displayText: "This is the list:",
+          data: workCard
         })
       }
     });
