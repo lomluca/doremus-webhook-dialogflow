@@ -1,14 +1,17 @@
+/* WEBHOOK DOREMUS FUNCTIONS */
+
+// DO QUERY WORKS-BY
 module.exports.doWorksByQuery = function doWorksByQuery(response, artist, number, instrument, strictly, yearstart, yearend, genre) {
 
-  // DEFAULT NUMBER VALUE (IN CASE IS NOT GIVEN)
-  var num = 5;
-  if (!isNaN(parseInt(number))) {
-    num = parseInt(number);
-  }
+    // DEFAULT NUMBER VALUE (IN CASE IS NOT GIVEN)
+    var num = 5;
+    if (!isNaN(parseInt(number))) {
+        num = parseInt(number);
+    }
 
-  // JSON QUERY  
-  // -> Init query
-  var newQuery = 'SELECT SAMPLE(?title) AS ?title, SAMPLE(?artist) AS ?artist, \
+    // JSON QUERY  
+    // -> Init query
+    var newQuery = 'SELECT SAMPLE(?title) AS ?title, SAMPLE(?artist) AS ?artist, \
                   SAMPLE(?year) AS ?year, SAMPLE(?genre) AS ?genre, \
                   SAMPLE(?comment) AS ?comment, SAMPLE(?key) AS ?key \
                    WHERE { \
@@ -28,40 +31,40 @@ module.exports.doWorksByQuery = function doWorksByQuery(response, artist, number
                        ?expression mus:U11_has_key ?k . \
                        ?k skos:prefLabel ?key \
                      } . '
-  
-  if (genre !== "") {
-    newQuery += 'VALUES(?gen) { \
+
+    if (genre !== "") {
+        newQuery += 'VALUES(?gen) { \
                    (<http://data.doremus.org/vocabulary/iaml/genre/' + genre + '>) \
                  }';
-  }
+    }
 
-  if (artist !== "") {
-    newQuery += 'VALUES(?composer) { \
+    if (artist !== "") {
+        newQuery += 'VALUES(?composer) { \
                    (<http://data.doremus.org/artist/' + artist + '>) \
                  }';
-  }
+    }
 
-  // -> Start year present
-  if (yearstart != null && yearend != null) {
-    newQuery += 'FILTER ( ?comp >= "' + yearstart + '"^^xsd:gYear AND ?comp <= "' + yearend + '"^^xsd:gYear ) .'
-  } else if (yearstart != null && yearend == null) {
-    newQuery += 'FILTER ( ?comp >= "' + yearstart + '"^^xsd:gYear ) .'
-  } else if (yearstart == null && yearend != null) {
-    newQuery += 'FILTER ( ?comp <= "' + yearend + '"^^xsd:gYear ) .'
-  }
+    // -> Start year present
+    if (yearstart != null && yearend != null) {
+        newQuery += 'FILTER ( ?comp >= "' + yearstart + '"^^xsd:gYear AND ?comp <= "' + yearend + '"^^xsd:gYear ) .'
+    } else if (yearstart != null && yearend == null) {
+        newQuery += 'FILTER ( ?comp >= "' + yearstart + '"^^xsd:gYear ) .'
+    } else if (yearstart == null && yearend != null) {
+        newQuery += 'FILTER ( ?comp <= "' + yearend + '"^^xsd:gYear ) .'
+    }
 
-  // -> No instrument
-  if (instrument.length == 0) {
+    // -> No instrument
+    if (instrument.length == 0) {
 
-    newQuery += '} \
+        newQuery += '} \
                  GROUP BY ?expression \
                  ORDER BY rand() \
                  LIMIT ' + num
-  }
-  // -> Just one instrument
-  else if (instrument.length == 1) {
+    }
+    // -> Just one instrument
+    else if (instrument.length == 1) {
 
-    newQuery += '?casting mus:U23_has_casting_detail ?castingDetail . \
+        newQuery += '?casting mus:U23_has_casting_detail ?castingDetail . \
                  ?castingDetail mus:U2_foresees_use_of_medium_of_performance / skos:exactMatch* ?instrument . \
                  VALUES(?instrument) { \
                    (<http://data.doremus.org/vocabulary/iaml/mop/' + instrument + '>) \
@@ -70,95 +73,97 @@ module.exports.doWorksByQuery = function doWorksByQuery(response, artist, number
                GROUP BY ?expression \
                ORDER BY rand() \
                LIMIT ' + num
-  }
-  // -> List of instruments
-  else {
+    }
+    // -> List of instruments
+    else {
 
-    // AND case
-    if (strictly === "and") {
-      for (var i = 0; i < instrument.length; i++) {
-        newQuery += '?casting mus:U23_has_casting_detail ?castingDetail' + i + ' . \
+        // AND case
+        if (strictly === "and") {
+            for (var i = 0; i < instrument.length; i++) {
+                newQuery += '?casting mus:U23_has_casting_detail ?castingDetail' + i + ' . \
                      ?castingDetail' + i + ' mus:U2_foresees_use_of_medium_of_performance / skos:exactMatch* ?instrument' + i + ' . \
                      VALUES(?instrument' + i + ') { \
                        (<http://data.doremus.org/vocabulary/iaml/mop/' + instrument[i] + '>) \
                      }'
-      }
+            }
 
-      newQuery += '} \
+            newQuery += '} \
                    GROUP BY ?expression \
                    ORDER BY rand() \
                    LIMIT ' + num
-    }
-    // OR case
-    else {
-      newQuery += '?casting mus:U23_has_casting_detail ?castingDetail . \
+        }
+        // OR case
+        else {
+            newQuery += '?casting mus:U23_has_casting_detail ?castingDetail . \
                    ?castingDetail mus:U2_foresees_use_of_medium_of_performance / skos:exactMatch* ?instrument . \
                    VALUES(?instrument) {'
 
-      for (var i = 0; i < instrument.length; i++) {
-        newQuery += '(<http://data.doremus.org/vocabulary/iaml/mop/' + instrument[i] + '>)'
-      }
+            for (var i = 0; i < instrument.length; i++) {
+                newQuery += '(<http://data.doremus.org/vocabulary/iaml/mop/' + instrument[i] + '>)'
+            }
 
-      newQuery += '} \
+            newQuery += '} \
                  } \
                  GROUP BY ?expression \
                  ORDER BY rand() \
                  LIMIT ' + num
-    }
-  }
-
-  // -> Finalize the query
-  var queryPrefix = 'http://data.doremus.org/sparql?default-graph-uri=&query=';
-  var querySuffix = '&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on';
-  var finalQuery = queryPrefix + encodeURI(newQuery) + querySuffix;
-
-  // -> Do the HTTP request
-  const request = require('request');
-  request(finalQuery, (err, res, body) => {
-
-    if (err) {
-      return console.log(err);
+        }
     }
 
-    // JSON PARSING
-    var json = JSON.parse(body)
+    // -> Finalize the query
+    var queryPrefix = 'http://data.doremus.org/sparql?default-graph-uri=&query=';
+    var querySuffix = '&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on';
+    var finalQuery = queryPrefix + encodeURI(newQuery) + querySuffix;
 
-    // RESPONSE
-    if (json["results"]["bindings"].length === 0) {
+    // -> Do the HTTP request
+    const request = require('request');
+    request(finalQuery, (err, res, body) => {
 
-      return response.json({
-        speech: "Sorry... I didn't find anything!",
-        displayText: "Sorry... I didn't find anything!"
-      })
+        if (err) {
+            return console.log(err);
+        }
 
-    } else {
+        // JSON PARSING
+        var json = JSON.parse(body)
 
-      var speech = "Yes! I tell you some titles. ...";
-      json["results"]["bindings"].forEach(function(row) {
+        // RESPONSE
+        if (json["results"]["bindings"].length === 0) {
 
-        var artist = row["artist"]["value"];
-        var title = row["title"]["value"];
-        var year = row["key"] !== undefined ? row["year"]["value"] : '-';
-        var genre = row["genre"]["value"];
-        var comment = row["comment"]["value"];
-        var key = row["key"] !== undefined ? row["key"]["value"] : '-';
+            return response.json({
+                speech: "Sorry... I didn't find anything!",
+                displayText: "Sorry... I didn't find anything!"
+            })
 
-        speech += title + ". "
-      });
+        } else {
 
-      response.set('Content-Type', 'application/json');
-      return response.json({
-        speech: speech,
-        displayText: "This is the list:",
-      })
-    }
-  });
+            var speech = "Yes! I tell you some titles. ...";
+            json["results"]["bindings"].forEach(function(row) {
+
+                var artist = row["artist"]["value"];
+                var title = row["title"]["value"];
+                var year = row["key"] !== undefined ? row["year"]["value"] : '-';
+                var genre = row["genre"]["value"];
+                var comment = row["comment"]["value"];
+                var key = row["key"] !== undefined ? row["key"]["value"] : '-';
+
+                speech += title + ". "
+            });
+
+            response.set('Content-Type', 'application/json');
+            return response.json({
+                speech: speech,
+                displayText: "This is the list:",
+            })
+        }
+    });
 }
 
+
+// DO QUERY FIND-PERFORMANCE
 module.exports.doQueryPerformance = function doQueryPerformance(response, number, city, startdate, enddate) {
 
-  // JSON QUERY  
-  var newQuery = 'SELECT SAMPLE(?title) AS ?title, SAMPLE(?subtitle) AS ?subtitle, \
+    // JSON QUERY  
+    var newQuery = 'SELECT SAMPLE(?title) AS ?title, SAMPLE(?subtitle) AS ?subtitle, \
                     SAMPLE(?actorsName) AS ?actorsName, SAMPLE(?placeName) AS ?placeName, SAMPLE(?date) AS ?date \
                   WHERE { \
                     ?performance a mus:M26_Foreseen_Performance ; \
@@ -173,58 +178,58 @@ module.exports.doQueryPerformance = function doQueryPerformance(response, number
                        rdfs:label ?date . \
                     FILTER ( ?time >= "' + startdate + '"^^xsd:date AND ?time <= "' + enddate + '"^^xsd:date ) .'
 
-  if (city !== "") {
-    newQuery += 'FILTER ( contains(lcase(str(?placeName)), "' + city + '") )'
-  }
+    if (city !== "") {
+        newQuery += 'FILTER ( contains(lcase(str(?placeName)), "' + city + '") )'
+    }
 
-  newQuery += '} \
+    newQuery += '} \
                GROUP BY ?performance \
                ORDER BY rand() \
                LIMIT ' + number
 
-  // -> Finalize the query
-  var queryPrefix = 'http://data.doremus.org/sparql?default-graph-uri=&query='
-  var querySuffix = '&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on'
-  var finalQuery = queryPrefix + encodeURI(newQuery) + querySuffix
+    // -> Finalize the query
+    var queryPrefix = 'http://data.doremus.org/sparql?default-graph-uri=&query='
+    var querySuffix = '&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on'
+    var finalQuery = queryPrefix + encodeURI(newQuery) + querySuffix
 
-  // -> Do the HTTP request
-  const request = require('request');
-  request(finalQuery, (err, res, body) => {
+    // -> Do the HTTP request
+    const request = require('request');
+    request(finalQuery, (err, res, body) => {
 
-    if (err) {
-      return console.log(err);
-    }
+        if (err) {
+            return console.log(err);
+        }
 
-    // JSON PARSING
-    var json = JSON.parse(body);
+        // JSON PARSING
+        var json = JSON.parse(body);
 
-    // RESPONSE
-    if (json["results"]["bindings"].length === 0) {
+        // RESPONSE
+        if (json["results"]["bindings"].length === 0) {
 
-      return response.json({
-        speech: "Sorry... I didn't find anything!",
-        displayText: "Sorry... I didn't find anything!"
-      })
-    } else {
+            return response.json({
+                speech: "Sorry... I didn't find anything!",
+                displayText: "Sorry... I didn't find anything!"
+            })
+        } else {
 
-      var speech = "Yes! ...";
+            var speech = "Yes! ...";
 
 
-      json["results"]["bindings"].forEach(function(row) {
-        var title = row["title"]["value"];
-        var subtitle = row["subtitle"]["value"];
-        var placeName = row["placeName"]["value"];
-        var actorsName = row["actorsName"]["value"];
-        var date = row["date"]["value"];
+            json["results"]["bindings"].forEach(function(row) {
+                var title = row["title"]["value"];
+                var subtitle = row["subtitle"]["value"];
+                var placeName = row["placeName"]["value"];
+                var actorsName = row["actorsName"]["value"];
+                var date = row["date"]["value"];
 
-        speech += title + ", at " + placeName + ". ";
-      });
+                speech += title + ", at " + placeName + ". ";
+            });
 
-      response.set('Content-Type', 'application/json');
-      return response.json({
-        speech: speech,
-        displayText: "This is the list:",
-      })
-    }
-  });
+            response.set('Content-Type', 'application/json');
+            return response.json({
+                speech: speech,
+                displayText: "This is the list:",
+            })
+        }
+    });
 }

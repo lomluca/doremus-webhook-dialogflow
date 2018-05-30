@@ -1,5 +1,8 @@
+/* WEBHOOK IO */
+
 var functions = require("./functions.js");
 
+// SHOW WORKS ACTION
 module.exports.showWorks = function showWorks(request, response, askForAdditionalFilters) {
 
     var parameters;
@@ -51,47 +54,48 @@ module.exports.showWorks = function showWorks(request, response, askForAdditiona
 
         // DO THE QUERY (WITH ALL THE INFOS)
         functions.doWorksByQuery(response, parameters["doremus-artist"],
-                                           parameters.number, parameters["doremus-instrument"],
-                                           parameters["doremus-strictly"],
-                                           startyear,
-                                           endyear,
-                                           parameters["doremus-genre"]);
+            parameters.number, parameters["doremus-instrument"],
+            parameters["doremus-strictly"],
+            startyear,
+            endyear,
+            parameters["doremus-genre"]);
     }
 }
 
 
+// SHOW PERFORMANCES ACTION
 module.exports.showPerformances = function showPerformances(request, response) {
 
     // ACTION COMPLETE (the date has been provided)
     if (request.body.result['actionIncomplete'] === false) {
 
-            var date = request.body.result.parameters["date-period"];
-            var place = request.body.result.parameters["geo-city"];
-            var number = request.body.result.parameters["number"];
+        var date = request.body.result.parameters["date-period"];
+        var place = request.body.result.parameters["geo-city"];
+        var number = request.body.result.parameters["number"];
 
-            var city = "";
-            if (place !== "") {
-                city = place.toLowerCase();
-            }
+        var city = "";
+        if (place !== "") {
+            city = place.toLowerCase();
+        }
 
-            var num = 1;
-            if (number !== "") {
-                    num = parseInt(number);
-            }
+        var num = 1;
+        if (number !== "") {
+            num = parseInt(number);
+        }
 
-            var startdate = date.split("/")[0];
-            var enddate = date.split("/")[1];
+        var startdate = date.split("/")[0];
+        var enddate = date.split("/")[1];
 
-            // DO THE QUERY (WITH ALL THE INFOS)
-            functions.doQueryPerformance(response, num, city, startdate, enddate);
+        // DO THE QUERY (WITH ALL THE INFOS)
+        functions.doQueryPerformance(response, num, city, startdate, enddate);
     }
 
     // ACTION INCOMPLETE (missing date)
     else {
 
-            return response.json({
-                speech: "Sure! In which period?",
-                displayText: "Sure! In which period?"
-            })
+        return response.json({
+            speech: "Sure! In which period?",
+            displayText: "Sure! In which period?"
+        })
     }
 }
