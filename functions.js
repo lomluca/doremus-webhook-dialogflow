@@ -133,7 +133,7 @@ module.exports.doWorksByQuery = function doWorksByQuery(response, artist, number
 
     } else {
 
-      var speech = "No problem. I tell you some titles. ";
+      var speech = "No problem. I tell you some titles: ";
       json["results"]["bindings"].forEach(function(row) {
 
         var artist = row["artist"]["value"];
