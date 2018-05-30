@@ -63,7 +63,7 @@ module.exports.showWorks = function showWorks(request, response, askForAdditiona
 module.exports.showPerformances = function showPerformances(request, response) {
 
     // ACTION COMPLETE (the date has been provided)
-    if (message['nlpResponse']['result']['actionIncomplete'] == false) {
+    if (request.body.result['actionIncomplete'] === false) {
 
             var date = request.body.result.parameters["date-period"];
             var place = request.body.result.parameters["geo-city"];
