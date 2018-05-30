@@ -50,8 +50,12 @@ module.exports.showWorks = function showWorks(request, response, askForAdditiona
         }
 
         // DO THE QUERY (WITH ALL THE INFOS)
-        functions.doWorksByQuery(parameters["doremus-artist"], parameters.number, parameters["doremus-instrument"],
-            parameters["doremus-strictly"], startyear, endyear, parameters["doremus-genre"]);
+        functions.doWorksByQuery(response, parameters["doremus-artist"],
+                                           parameters.number, parameters["doremus-instrument"],
+                                           parameters["doremus-strictly"],
+                                           startyear,
+                                           endyear,
+                                           parameters["doremus-genre"]);
     }
 }
 
@@ -67,7 +71,7 @@ module.exports.showPerformances = function showPerformances(request, response) {
 
             var city = "";
             if (place !== "") {
-                    city = place.toLowerCase();
+                city = place.toLowerCase();
             }
 
             var num = 1;
@@ -79,7 +83,7 @@ module.exports.showPerformances = function showPerformances(request, response) {
             var enddate = date.split("/")[1];
 
             // DO THE QUERY (WITH ALL THE INFOS)
-            functions.doQueryPerformance(num, city, startdate, enddate);
+            functions.doQueryPerformance(response, num, city, startdate, enddate);
     }
 
     // ACTION INCOMPLETE (missing date)

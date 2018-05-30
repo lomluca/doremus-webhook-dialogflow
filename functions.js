@@ -1,4 +1,4 @@
-module.exports.doWorksByQuery = function doWorksByQuery(artist, number, instrument, strictly, yearstart, yearend, genre) {
+module.exports.doWorksByQuery = function doWorksByQuery(response, artist, number, instrument, strictly, yearstart, yearend, genre) {
 
   // DEFAULT NUMBER VALUE (IN CASE IS NOT GIVEN)
   var num = 5;
@@ -155,7 +155,7 @@ module.exports.doWorksByQuery = function doWorksByQuery(artist, number, instrume
   });
 }
 
-module.exports.doQueryPerformance = function doQueryPerformance(number, city, startdate, enddate) {
+module.exports.doQueryPerformance = function doQueryPerformance(response, number, city, startdate, enddate) {
 
   // JSON QUERY  
   var newQuery = 'SELECT SAMPLE(?title) AS ?title, SAMPLE(?subtitle) AS ?subtitle, \
