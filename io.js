@@ -1,6 +1,6 @@
 var functions = require("./functions.js");
 
-module.exports.showWorks = function showWorks(askForAdditionalFilters) {
+module.exports.showWorks = function showWorks(request, response, askForAdditionalFilters) {
 
     var parameters;
     var filterCounter = 0;
@@ -56,7 +56,7 @@ module.exports.showWorks = function showWorks(askForAdditionalFilters) {
 }
 
 
-module.exports.showPerformances = function showPerformances() {
+module.exports.showPerformances = function showPerformances(request, response) {
 
     // ACTION COMPLETE (the date has been provided)
     if (message['nlpResponse']['result']['actionIncomplete'] == false) {

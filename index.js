@@ -22,11 +22,11 @@ server.post('/answers', (request, response) => {
     // Run the proper function handler based on the matched Dialogflow intent name
     var intent = request.body.result.metadata.intentName;
     if (intent === "works-by") {
-        io.showWorks(true);
+        io.showWorks(request, response, true);
     } else if (intent === "works-by - no") {
-        io.showWorks(false);
+        io.showWorks(request, response, false);
     } else if (intent === "find-performance") {
-        io.showPerformances();
+        io.showPerformances(request, response);
     }
 });
 

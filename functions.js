@@ -133,8 +133,6 @@ module.exports.doWorksByQuery = function doWorksByQuery(artist, number, instrume
 
     } else {
 
-      var workCard;
-
       var speech = "No problem. I tell you some titles. ";
       json["results"]["bindings"].forEach(function(row) {
 
