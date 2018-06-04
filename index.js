@@ -20,6 +20,7 @@ server.post('/answers', (request, response) => {
     console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
 
     // Run the proper function handler based on the matched Dialogflow intent name
+	console.log("###################### request.body.result.metadata.intentName");
     var intent = request.body.result.metadata.intentName;
     if (intent === "works-by") {
         io.showWorks(request, response, true);
