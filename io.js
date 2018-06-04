@@ -35,7 +35,7 @@ module.exports.showWorks = function showWorks(request, response, askForAdditiona
         var startyear = null;
         var endyear = null;
 
-        if (parameters["date-period"] !== "") {
+        if (typeof parameters["date-period"] !== "undefined" && parameters["date-period"] !== "") {
             startyear = parseInt(parameters["date-period"].split("/")[0]);
             endyear = parseInt(parameters["date-period"].split("/")[1]);
 
@@ -48,7 +48,7 @@ module.exports.showWorks = function showWorks(request, response, askForAdditiona
         }
 
         // ARTIST PARSING
-        if (parameters["doremus-artist"] == "" && parameters["doremus-artist-prev"] !== "") {
+        if (parameters["doremus-artist"] == "" && typeof parameters["doremus-artist-prev"] !== "undefined" && parameters["doremus-artist-prev"] !== "") {
             parameters["doremus-artist"] = parameters["doremus-artist-prev"];
         }
 
