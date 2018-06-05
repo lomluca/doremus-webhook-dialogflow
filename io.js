@@ -21,10 +21,11 @@ module.exports.showWorks = function showWorks(request, response, askForAdditiona
             }
         }
     } else {
-        contexts = request.body.result.contexts
+        var contexts = request.body.result.contexts
         console.log("*** Retrieving an old context...");
-        parameters = contexts.filter( c => c.name === "works-by-followup").parameters;
-        console.log(contexts);
+        context = contexts.filter( context => context["name"] === "works-by-followup");
+        console.log("*** This is the context " + context);
+        parameters = context.parameters;
     }
 
     if (filterCounter <= 2 && askForAdditionalFilters == true) {
