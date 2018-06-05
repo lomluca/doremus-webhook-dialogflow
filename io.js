@@ -22,7 +22,9 @@ module.exports.showWorks = function showWorks(request, response, askForAdditiona
         }
     } else {
         contexts = request.body.result.contexts
+        console.log("*** Retrieving an old context...");
         parameters = contexts.filter( c => c.name === "works-by-followup").parameters;
+        console.log(parameters);
     }
 
     if (filterCounter <= 2 && askForAdditionalFilters == true) {
