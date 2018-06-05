@@ -23,9 +23,15 @@ module.exports.showWorks = function showWorks(request, response, askForAdditiona
     } else {
         var contexts = request.body.result.contexts
         console.log("*** Retrieving an old context...");
-        var context = contexts.filter( context => context["name"] == "works-by-followup");
-        console.log(context.parameters);
-        parameters = context.parameters;
+        //var context = contexts.filter( context => context["name"] == "works-by-followup");
+        for (var i = 0; i < contexts.length; i++) {
+            if (contexts[i].name === "works-by-followup") {
+                console.log("I found the context");
+                console.log(contexts[i]);
+                parameters = contexts[i].parameters;
+                break;
+            }
+        }
     }
 
     if (filterCounter <= 2 && askForAdditionalFilters == true) {
