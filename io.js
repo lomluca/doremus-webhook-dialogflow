@@ -21,7 +21,8 @@ module.exports.showWorks = function showWorks(request, response, askForAdditiona
             }
         }
     } else {
-        parameters = request.body.result.contexts[0].parameters;
+        contexts = request.body.result.contexts
+        parameters = contexts.filter( c => c.name === "works-by-followup");
     }
 
     if (filterCounter <= 2 && askForAdditionalFilters == true) {
