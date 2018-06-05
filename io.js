@@ -23,8 +23,8 @@ module.exports.showWorks = function showWorks(request, response, askForAdditiona
     } else {
         var contexts = request.body.result.contexts
         console.log("*** Retrieving an old context...");
-        var context = contexts.filter( context => context["name"] === "works-by-followup");
-        console.log("*** This is the context " + context);
+        var context = contexts.filter( context => context["name"] == "works-by-followup");
+        console.log(context.parameters);
         parameters = context.parameters;
     }
 
